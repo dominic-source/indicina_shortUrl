@@ -4,9 +4,7 @@ import { ApiService } from './api/api.service';
 
 @Controller()
 export class AppController {
-  constructor(
-    private readonly appService: AppService,
-  ) {}
+  constructor(private readonly appService: AppService) {}
 
   private readonly URL_404 = 'http://localhost:3000/404';
 

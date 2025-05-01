@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, UsePipes, ValidationPipe, BadRequestException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UsePipes,
+  ValidationPipe,
+  BadRequestException,
+} from '@nestjs/common';
 import { ApiService } from './api.service';
 import { EncodeDto } from './dto/encode.dto';
 import { DecodeDto } from './dto/decode.dto';
