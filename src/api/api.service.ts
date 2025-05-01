@@ -23,7 +23,11 @@ export class ApiService {
 
   private generateShortUrl(): string {
     const randomNumber = Math.floor(Math.random() * this.LARGE_NUMBER);
-    return `${this.URL_PREFIX}${this.convertToBase62(randomNumber)}`;
+    return this.prefixUrl(this.convertToBase62(randomNumber));
+  }
+
+  private prefixUrl(param: string): string {
+    return `${this.URL_PREFIX}${param}`;
   }
 
   encodeUrl(encodeDto: EncodeDto): DecodeDto {
@@ -58,7 +62,7 @@ export class ApiService {
   }
 
   getStatistics(urlPath: string): object {
-    const shortUrl = `${this.URL_PREFIX}${urlPath}`;
+    const shortUrl = this.prefixUrl(urlPath);
     if (this.shortUrlToLongUrl.has(shortUrl)) {
       const urlData = this.shortUrlToLongUrl.get(shortUrl);
       return {
