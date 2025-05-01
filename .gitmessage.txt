@@ -1,0 +1,26 @@
+# <type>(<scope>): <short summary>
+#
+# Types:
+#   feat     - new feature
+#   fix      - bug fix
+#   docs     - documentation change
+#   style    - formatting, missing semi colons, etc
+#   refactor - refactoring production code
+#   test     - adding or fixing tests
+#   chore    - updating build tasks, configs, etc
+#
+# Scope: optional, a specific module or component
+# Summary: up to 50 characters, imperative mood
+#
+# Example:
+#   feat(auth): add JWT login support
+#
+# -------------------- optional body --------------------
+#
+# More detailed explanatory text, if necessary.
+# Wrap it at 72 characters.
+#
+# -------------------- optional footer ------------------
+#
+# Closes #123
+# Related to #456

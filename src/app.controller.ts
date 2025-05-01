@@ -6,7 +6,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get(':urlPath')
-  redirectUrl(@Param('urlPath') urlPath: string ): string {
+  redirectUrl(@Param('urlPath') urlPath: string): string {
     return this.appService.redirectUrl();
   }
 }

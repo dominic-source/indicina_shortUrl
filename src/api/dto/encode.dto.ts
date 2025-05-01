@@ -1,3 +1,3 @@
 export class EncodeDto {
-  longUrl: string
+  longUrl: string;
 }

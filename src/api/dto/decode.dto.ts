@@ -1,3 +1,3 @@
 export class DecodeDto {
-    shortUrl: string
+  shortUrl: string;
 }

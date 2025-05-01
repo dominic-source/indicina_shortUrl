@@ -5,19 +5,18 @@ import { DecodeDto } from './dto/decode.dto';
 @Injectable()
 export class ApiService {
   encodeUrl(encodeDto: EncodeDto): string {
-    
-    return ''
+    return '';
   }
 
   decodeUrl(decodeDto: DecodeDto): string {
-    return ''
+    return '';
   }
 
   getStatistics(urlPath: string): string {
-    return ''
+    return '';
   }
 
   listAllUrl(): string {
-    return ''
+    return 'This is a list of all URLs';
   }
 }
