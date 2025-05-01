@@ -10,7 +10,7 @@ export class ApiService {
   private BASE62_CHARACTERS = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   private BASE62_LENGTH = this.BASE62_CHARACTERS.length;
   private LARGE_NUMBER = 1_000_000_000_000;
-  private URL_PREFIX = 'http://short.est/';
+  private URL_PREFIX = 'http://localhost:3000/';
   
   private convertToBase62(num: number): string {
     let result = '';
@@ -26,7 +26,7 @@ export class ApiService {
     return this.prefixUrl(this.convertToBase62(randomNumber));
   }
 
-  private prefixUrl(param: string): string {
+  prefixUrl(param: string): string {
     return `${this.URL_PREFIX}${param}`;
   }
 
@@ -50,6 +50,8 @@ export class ApiService {
     urlMap.set('longUrl', longUrl);
     urlMap.set('no_of_visits','0');
     urlMap.set('last_visited', 'never');
+    urlMap.set('created_at', new Date().toLocaleString());
+
     this.longUrlToShortUrl.set(longUrl, shortUrl);
     this.shortUrlToLongUrl.set(shortUrl, urlMap);
 
@@ -69,6 +71,7 @@ export class ApiService {
         longUrl: urlData?.get('longUrl'),
         no_of_visits: urlData?.get('no_of_visits'),
         last_visited: urlData?.get('last_visited'),
+        created_at: urlData?.get('created_at'),
         shortUrl: shortUrl,
       };
 
@@ -88,13 +91,10 @@ export class ApiService {
     return sortedUrls;
   }
 
-  visitShortUrl(shortUrl: string): boolean {
+  visitShortUrl(shortUrl: string): void {
     if (this.shortUrlToLongUrl.has(shortUrl)) {
       this.shortUrlToLongUrl.get(shortUrl)?.set('no_of_visits', (parseInt(this.shortUrlToLongUrl.get(shortUrl)?.get('no_of_visits') || '0') + 1).toString());
-      this.shortUrlToLongUrl.get(shortUrl)?.set('last_visited', new Date().toISOString());
-      return true;
-    } else {
-      return false;
+      this.shortUrlToLongUrl.get(shortUrl)?.set('last_visited', new Date().toLocaleString());
     }
   }
 }
