@@ -2,6 +2,7 @@ import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { EncodeDto } from './dto/encode.dto';
 import { DecodeDto } from './dto/decode.dto';
 import { AppService } from 'src/app.service';
+import { UrlFetchDto } from './dto/urlFetch.dto';
 
 @Injectable()
 export class ApiService {
@@ -50,9 +51,9 @@ export class ApiService {
     // Store the mappings
     let urlMap = new Map<string, string>();
     urlMap.set('longUrl', longUrl);
-    urlMap.set('no_of_visits', '0');
-    urlMap.set('last_visited', 'never');
-    urlMap.set('created_at', new Date().toLocaleString());
+    urlMap.set('visits', '0');
+    urlMap.set('lastVisited', 'never');
+    urlMap.set('createdAt', new Date().toLocaleString());
 
     this.longUrlToShortUrl.set(longUrl, shortUrl);
     this.shortUrlToLongUrl.set(shortUrl, urlMap);
@@ -67,48 +68,56 @@ export class ApiService {
     );
   }
 
-  getStatistics(urlPath: string): object {
+  getStatistics(urlPath: string): UrlFetchDto {
     const shortUrl = this.appService.urlPostFix(urlPath);
-    if (this.shortUrlToLongUrl.has(shortUrl)) {
-      const urlData = this.shortUrlToLongUrl.get(shortUrl);
+    if (!this.shortUrlToLongUrl.has(shortUrl)) {
       return {
-        longUrl: urlData?.get('longUrl'),
-        no_of_visits: urlData?.get('no_of_visits'),
-        last_visited: urlData?.get('last_visited'),
-        created_at: urlData?.get('created_at'),
+        longUrl: 'N/A',
+        visits: undefined,
+        lastVisited: undefined,
+        createdAt: undefined,
+        shortUrl: 'N/A',
+      }
+    }
+      const urlData = this.shortUrlToLongUrl.get(shortUrl);
+
+      return {
+        longUrl: urlData?.get('longUrl') ?? 'N/A',
+        visits: urlData?.get('visits'),
+        lastVisited: urlData?.get('lastVisited'),
+        createdAt: urlData?.get('createdAt'),
         shortUrl: shortUrl,
       };
-    }
-    return { error: 'URL not found' };
   }
 
-  listAllUrl(): { longUrl: string; shortUrl: string }[] {
+  listAllUrl(): UrlFetchDto[] | [] {
     if (this.longUrlToShortUrl.size === 0) {
-      return [{ longUrl: 'No URLs found', shortUrl: '' }];
+      return [];
     }
 
-    const sortedUrls = Array.from(this.longUrlToShortUrl.entries())
+    const sortedUrls = Array.from(this.shortUrlToLongUrl.entries())
       .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([longUrl, shortUrl]) => ({ longUrl, shortUrl }));
+      .map(([shortUrl, urlData]) => ({
+        shortUrl,
+        longUrl: urlData.get('longUrl'),
+        createdAt: urlData.get('createdAt') || 'N/A',
+        visits: urlData.get('visits') || '0',
+        lastVisited: urlData.get('lastVisited') || 'never',
+      }));
 
     return sortedUrls;
   }
 
   visitShortUrl(shortUrl: string): void {
     if (this.shortUrlToLongUrl.has(shortUrl)) {
-      this.shortUrlToLongUrl
-        .get(shortUrl)
-        ?.set(
-          'no_of_visits',
-          (
-            parseInt(
-              this.shortUrlToLongUrl.get(shortUrl)?.get('no_of_visits') || '0',
-            ) + 1
-          ).toString(),
-        );
-      this.shortUrlToLongUrl
-        .get(shortUrl)
-        ?.set('last_visited', new Date().toLocaleString());
+      const urlData = this.shortUrlToLongUrl.get(shortUrl);
+      urlData?.set(
+        'visits',
+        (
+          parseInt(urlData.get('visits') || '0', 10) + 1
+        ).toString(),
+      );
+      urlData?.set('lastVisited', new Date().toLocaleString());
     }
   }
 }
