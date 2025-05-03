@@ -1,16 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { EncodeDto } from './dto/encode.dto';
 import { DecodeDto } from './dto/decode.dto';
+import { AppService } from 'src/app.service';
 
 @Injectable()
 export class ApiService {
+  constructor(
+    @Inject(forwardRef(() => AppService))
+    private appService: AppService,
+  ) {}
+
+  // Maps to store long and short URLs
   private longUrlToShortUrl = new Map<string, string>();
   private shortUrlToLongUrl = new Map<string, Map<string, string>>();
   private BASE62_CHARACTERS =
     '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   private BASE62_LENGTH = this.BASE62_CHARACTERS.length;
   private LARGE_NUMBER = 1_000_000_000_000;
-  private URL_PREFIX = 'http://localhost:3000/';
 
   private convertToBase62(num: number): string {
     let result = '';
@@ -23,11 +29,7 @@ export class ApiService {
 
   private generateShortUrl(): string {
     const randomNumber = Math.floor(Math.random() * this.LARGE_NUMBER);
-    return this.prefixUrl(this.convertToBase62(randomNumber));
-  }
-
-  prefixUrl(param: string): string {
-    return `${this.URL_PREFIX}${param}`;
+    return this.appService.urlPostFix(this.convertToBase62(randomNumber));
   }
 
   encodeUrl(encodeDto: EncodeDto): DecodeDto {
@@ -66,7 +68,7 @@ export class ApiService {
   }
 
   getStatistics(urlPath: string): object {
-    const shortUrl = this.prefixUrl(urlPath);
+    const shortUrl = this.appService.urlPostFix(urlPath);
     if (this.shortUrlToLongUrl.has(shortUrl)) {
       const urlData = this.shortUrlToLongUrl.get(shortUrl);
       return {

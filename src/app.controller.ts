@@ -1,12 +1,12 @@
 import { Controller, Get, Param, Redirect } from '@nestjs/common';
 import { AppService } from './app.service';
-import { ApiService } from './api/api.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
-  private readonly URL_404 = 'http://localhost:3000/404';
+  private readonly URL_404: string;
+  constructor(private readonly appService: AppService) {
+    this.URL_404 = `${this.appService.URL_PREFIX}404`;
+  }
 
   @Get(':urlPath')
   @Redirect()
