@@ -121,7 +121,7 @@ The service will redirect you to the original long URL and increment the visit c
 
 ## Environment Variables
 
-- `BASE_URL`: The base URL used for generating short URLs (e.g., `http://localhost:3000/`).
+- `BASE_URL`: The base URL used for generating short URLs (e.g., `http://localhost:4000/`).
 
 ---
 
