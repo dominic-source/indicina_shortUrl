@@ -25,9 +25,9 @@ export class AppService {
     const shortUrl = this.urlPostFix(urlPath);
     const longUrl = this.apiService.decodeUrl({ shortUrl });
     if (longUrl === 'URL not found') {
-      return false; // URL not found
+      return false;
     }
     this.apiService.visitShortUrl(shortUrl);
-    return longUrl; // Redirect to the long URL
+    return longUrl;
   }
 }

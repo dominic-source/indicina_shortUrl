@@ -4,20 +4,75 @@ import { DecodeDto } from './dto/decode.dto';
 import { AppService } from 'src/app.service';
 import { UrlFetchDto } from './dto/urlFetch.dto';
 
-@Injectable()
-export class ApiService {
-  constructor(
-    @Inject(forwardRef(() => AppService))
-    private appService: AppService,
-  ) {}
+interface IUrlRepository {
+  hasLongUrl(longUrl: string): boolean;
+  getShortUrl(longUrl: string): string | undefined;
+  hasShortUrl(shortUrl: string): boolean;
+  setMapping(longUrl: string, shortUrl: string, createdAt: string): void;
+  getLongUrl(shortUrl: string): string | undefined;
+  getUrlData(shortUrl: string): Map<string, string> | undefined;
+  getAll(): [string, Map<string, string>][];
+  updateVisit(shortUrl: string): void;
+}
 
-  // Maps to store long and short URLs
+class InMemoryUrlRepository implements IUrlRepository {
   private longUrlToShortUrl = new Map<string, string>();
   private shortUrlToLongUrl = new Map<string, Map<string, string>>();
+
+  hasLongUrl(longUrl: string): boolean {
+    return this.longUrlToShortUrl.has(longUrl);
+  }
+  getShortUrl(longUrl: string): string | undefined {
+    return this.longUrlToShortUrl.get(longUrl);
+  }
+  hasShortUrl(shortUrl: string): boolean {
+    return this.shortUrlToLongUrl.has(shortUrl);
+  }
+  setMapping(longUrl: string, shortUrl: string, createdAt: string): void {
+    let urlMap = new Map<string, string>();
+    urlMap.set('longUrl', longUrl);
+    urlMap.set('visits', '0');
+    urlMap.set('lastVisited', 'never');
+    urlMap.set('createdAt', createdAt);
+    this.longUrlToShortUrl.set(longUrl, shortUrl);
+    this.shortUrlToLongUrl.set(shortUrl, urlMap);
+  }
+  getLongUrl(shortUrl: string): string | undefined {
+    return this.shortUrlToLongUrl.get(shortUrl)?.get('longUrl');
+  }
+  getUrlData(shortUrl: string): Map<string, string> | undefined {
+    return this.shortUrlToLongUrl.get(shortUrl);
+  }
+  getAll(): [string, Map<string, string>][] {
+    return Array.from(this.shortUrlToLongUrl.entries());
+  }
+  updateVisit(shortUrl: string): void {
+    const urlData = this.shortUrlToLongUrl.get(shortUrl);
+    if (urlData) {
+      urlData.set(
+        'visits',
+        (parseInt(urlData.get('visits') || '0', 10) + 1).toString(),
+      );
+      urlData.set('lastVisited', new Date().toLocaleString());
+    }
+  }
+}
+
+@Injectable()
+export class ApiService {
+  private readonly urlRepository: IUrlRepository;
   private BASE62_CHARACTERS =
     '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   private BASE62_LENGTH = this.BASE62_CHARACTERS.length;
   private LARGE_NUMBER = 1_000_000_000_000;
+
+  constructor(
+    @Inject(forwardRef(() => AppService))
+    private appService: AppService,
+  ) {
+    // In production, inject repository via DI
+    this.urlRepository = new InMemoryUrlRepository();
+  }
 
   private convertToBase62(num: number): string {
     let result = '';
@@ -36,41 +91,32 @@ export class ApiService {
   encodeUrl(encodeDto: EncodeDto): DecodeDto {
     const { longUrl } = encodeDto;
 
-    // Check if the URL is already encoded
-    if (this.longUrlToShortUrl.has(longUrl)) {
-      return { shortUrl: this.longUrlToShortUrl.get(longUrl) || '' };
+    if (this.urlRepository.hasLongUrl(longUrl)) {
+      return { shortUrl: this.urlRepository.getShortUrl(longUrl) || '' };
     }
 
     let shortUrl: string;
-
-    // Generate a unique short URL
     do {
       shortUrl = this.generateShortUrl();
-    } while (this.shortUrlToLongUrl.has(shortUrl));
+    } while (this.urlRepository.hasShortUrl(shortUrl));
 
-    // Store the mappings
-    let urlMap = new Map<string, string>();
-    urlMap.set('longUrl', longUrl);
-    urlMap.set('visits', '0');
-    urlMap.set('lastVisited', 'never');
-    urlMap.set('createdAt', new Date().toLocaleString());
-
-    this.longUrlToShortUrl.set(longUrl, shortUrl);
-    this.shortUrlToLongUrl.set(shortUrl, urlMap);
+    this.urlRepository.setMapping(
+      longUrl,
+      shortUrl,
+      new Date().toLocaleString(),
+    );
 
     return { shortUrl };
   }
 
   decodeUrl(decodeDto: DecodeDto): string {
     const { shortUrl } = decodeDto;
-    return (
-      this.shortUrlToLongUrl.get(shortUrl)?.get('longUrl') || 'URL not found'
-    );
+    return this.urlRepository.getLongUrl(shortUrl) || 'URL not found';
   }
 
   getStatistics(urlPath: string): UrlFetchDto {
     const shortUrl = this.appService.urlPostFix(urlPath);
-    if (!this.shortUrlToLongUrl.has(shortUrl)) {
+    if (!this.urlRepository.hasShortUrl(shortUrl)) {
       return {
         longUrl: 'N/A',
         visits: undefined,
@@ -79,7 +125,7 @@ export class ApiService {
         shortUrl: 'N/A',
       };
     }
-    const urlData = this.shortUrlToLongUrl.get(shortUrl);
+    const urlData = this.urlRepository.getUrlData(shortUrl);
 
     return {
       longUrl: urlData?.get('longUrl') ?? 'N/A',
@@ -91,11 +137,12 @@ export class ApiService {
   }
 
   listAllUrl(): UrlFetchDto[] | [] {
-    if (this.longUrlToShortUrl.size === 0) {
+    const all = this.urlRepository.getAll();
+    if (all.length === 0) {
       return [];
     }
 
-    const sortedUrls = Array.from(this.shortUrlToLongUrl.entries())
+    const sortedUrls = all
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map(([shortUrl, urlData]) => ({
         shortUrl,
@@ -109,13 +156,6 @@ export class ApiService {
   }
 
   visitShortUrl(shortUrl: string): void {
-    if (this.shortUrlToLongUrl.has(shortUrl)) {
-      const urlData = this.shortUrlToLongUrl.get(shortUrl);
-      urlData?.set(
-        'visits',
-        (parseInt(urlData.get('visits') || '0', 10) + 1).toString(),
-      );
-      urlData?.set('lastVisited', new Date().toLocaleString());
-    }
+    this.urlRepository.updateVisit(shortUrl);
   }
 }
