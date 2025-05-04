@@ -5,10 +5,7 @@ import { AppService } from '../app.service';
 
 @Module({
   controllers: [ApiController],
-  providers: [
-    ApiService,
-    AppService,
-  ],
+  providers: [ApiService, AppService],
   exports: [ApiService],
 })
 export class ApiModule {}

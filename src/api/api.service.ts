@@ -77,17 +77,17 @@ export class ApiService {
         lastVisited: undefined,
         createdAt: undefined,
         shortUrl: 'N/A',
-      }
-    }
-      const urlData = this.shortUrlToLongUrl.get(shortUrl);
-
-      return {
-        longUrl: urlData?.get('longUrl') ?? 'N/A',
-        visits: urlData?.get('visits'),
-        lastVisited: urlData?.get('lastVisited'),
-        createdAt: urlData?.get('createdAt'),
-        shortUrl: shortUrl,
       };
+    }
+    const urlData = this.shortUrlToLongUrl.get(shortUrl);
+
+    return {
+      longUrl: urlData?.get('longUrl') ?? 'N/A',
+      visits: urlData?.get('visits'),
+      lastVisited: urlData?.get('lastVisited'),
+      createdAt: urlData?.get('createdAt'),
+      shortUrl: shortUrl,
+    };
   }
 
   listAllUrl(): UrlFetchDto[] | [] {
@@ -113,9 +113,7 @@ export class ApiService {
       const urlData = this.shortUrlToLongUrl.get(shortUrl);
       urlData?.set(
         'visits',
-        (
-          parseInt(urlData.get('visits') || '0', 10) + 1
-        ).toString(),
+        (parseInt(urlData.get('visits') || '0', 10) + 1).toString(),
       );
       urlData?.set('lastVisited', new Date().toLocaleString());
     }
