@@ -134,6 +134,61 @@ pnpm run start:dev
 
 ---
 
-## License
+## Running Tests
 
-MIT
+This project includes end-to-end (e2e) tests to ensure the API behaves as expected.
+
+### Running All Tests
+
+To run all tests, use the following command:
+
+```bash
+pnpm run test
+```
+
+### Running End-to-End (e2e) Tests
+
+To specifically run the e2e tests, use:
+
+```bash
+pnpm run test:e2e
+```
+
+### Test File Structure
+
+- **Location:** `/test/api.e2e-spec.ts`
+- **Description:** Contains e2e tests for all API endpoints, including encoding, decoding, and statistics retrieval.
+
+### Writing New Tests
+
+To add new tests:
+1. Create or modify test files in the `/test` directory.
+2. Use the `supertest` library to simulate HTTP requests.
+3. Follow the existing test structure for consistency.
+
+### Example Test Output
+
+When running the tests, you should see output similar to:
+
+```bash
+ PASS  test/api.e2e-spec.ts
+  API Endpoints (e2e)
+    POST /api/encode
+      ✓ should encode a long URL and return a shorter one (50ms)
+      ✓ should return the same short URL for the same long URL (30ms)
+      ✓ should return validation error for invalid URLs (20ms)
+      ✓ should return validation error for empty URL (15ms)
+    POST /api/decode
+      ✓ should decode a short URL back to the original long URL (40ms)
+      ✓ should return 400 for non-existent short URLs (25ms)
+      ✓ should return validation error for invalid short URLs (20ms)
+    GET /api/statistic/:urlPath
+      ✓ should return statistics for a valid URL path (35ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       8 passed, 8 total
+Snapshots:   0 total
+Time:        1.5s
+```
+
+---
