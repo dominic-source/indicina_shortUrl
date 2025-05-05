@@ -121,16 +121,31 @@ The service will redirect you to the original long URL and increment the visit c
 
 ## Environment Variables
 
-- `BASE_URL`: The base URL used for generating short URLs (e.g., `http://localhost:4000/`).
+Before starting the application, ensure you have a `.env` file in the root directory with the following variables:
+
+```properties
+PORT="4000"
+BASE_URL="http://localhost:4000"
+```
+
+- `PORT`: The port on which the application will run.
+- `BASE_URL`: The base URL used for generating short URLs.
 
 ---
 
 ## Running the Application
 
-```bash
-pnpm install
-pnpm run start:dev
-```
+1. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+
+2. Set up the `.env` file as described above.
+
+3. Start the application in development mode:
+   ```bash
+   pnpm run start:dev
+   ```
 
 ---
 
