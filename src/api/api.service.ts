@@ -109,9 +109,9 @@ export class ApiService {
     return { shortUrl };
   }
 
-  decodeUrl(decodeDto: DecodeDto): string {
+  decodeUrl(decodeDto: DecodeDto): EncodeDto {
     const { shortUrl } = decodeDto;
-    return this.urlRepository.getLongUrl(shortUrl) || 'URL not found';
+    return { longUrl: this.urlRepository.getLongUrl(shortUrl) || 'URL not found' };
   }
 
   getStatistics(urlPath: string): UrlFetchDto {

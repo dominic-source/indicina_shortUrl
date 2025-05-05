@@ -76,7 +76,7 @@ describe('ApiService', () => {
       // Then decode
       const result = apiService.decodeUrl({ shortUrl });
       
-      expect(result).toBe(longUrl);
+      expect(result.longUrl).toBe(longUrl);
     });
 
     it('should return "URL not found" for a non-existent short URL', () => {
@@ -85,7 +85,7 @@ describe('ApiService', () => {
       
       const result = apiService.decodeUrl(decodeDto);
       
-      expect(result).toBe('URL not found');
+      expect(result.longUrl).toBe('URL not found');
     });
   });
 

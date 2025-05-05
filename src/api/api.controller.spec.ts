@@ -51,7 +51,7 @@ describe('ApiController', () => {
   describe('decodeUrl', () => {
     it('should decode a short URL successfully', () => {
       const decodeDto: DecodeDto = { shortUrl: 'http://short.url/abc123' };
-      const expectedLongUrl = 'https://example.com/very/long/url';
+      const expectedLongUrl = {longUrl: 'https://example.com/very/long/url'};
       
       jest.spyOn(apiService, 'decodeUrl').mockReturnValue(expectedLongUrl);
       
@@ -64,7 +64,7 @@ describe('ApiController', () => {
     it('should throw BadRequestException for non-existent URLs', () => {
       const decodeDto: DecodeDto = { shortUrl: 'http://short.url/notfound' };
       
-      jest.spyOn(apiService, 'decodeUrl').mockReturnValue('URL not found');
+      jest.spyOn(apiService, 'decodeUrl').mockReturnValue({longUrl: 'URL not found'});
       
       expect(() => controller.decodeUrl(decodeDto)).toThrow(BadRequestException);
       expect(apiService.decodeUrl).toHaveBeenCalledWith(decodeDto);

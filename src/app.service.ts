@@ -24,10 +24,10 @@ export class AppService {
     // Get the long URL from the short URL
     const shortUrl = this.urlPostFix(urlPath);
     const longUrl = this.apiService.decodeUrl({ shortUrl });
-    if (longUrl === 'URL not found') {
+    if (longUrl.longUrl === 'URL not found') {
       return false;
     }
     this.apiService.visitShortUrl(shortUrl);
-    return longUrl;
+    return longUrl.longUrl;
   }
 }

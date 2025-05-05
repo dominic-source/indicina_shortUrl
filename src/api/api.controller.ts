@@ -26,7 +26,7 @@ export class ApiController {
   @UsePipes(new ValidationPipe({ transform: true }))
   decodeUrl(@Body() decodeDto: DecodeDto) {
     const result = this.apiService.decodeUrl(decodeDto);
-    if (result === 'URL not found') {
+    if (result.longUrl === 'URL not found') {
       throw new BadRequestException('URL not found');
     }
     return result;
