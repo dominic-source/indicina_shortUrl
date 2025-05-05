@@ -1,7 +1,7 @@
 import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { EncodeDto } from './dto/encode.dto';
 import { DecodeDto } from './dto/decode.dto';
-import { AppService } from 'src/app.service';
+import { AppService } from '../app.service';
 import { UrlFetchDto } from './dto/urlFetch.dto';
 
 interface IUrlRepository {

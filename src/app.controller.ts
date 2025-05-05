@@ -8,13 +8,17 @@ export class AppController {
     this.URL_404 = `${this.appService.URL_PREFIX}404`;
   }
 
+  @Get()
+  hello(): string {
+    return 'Hello World!';
+  }
+  
   @Get(':urlPath')
   @Redirect()
   redirectUrl(@Param('urlPath') urlPath: string) {
     const longUrl = this.appService.getRedirectUrl(urlPath);
-    // if an error occurs, return a 404 page
     if (!longUrl) {
-      return { url: this.URL_404 }; // Redirect to a 404 page
+      return { url: this.URL_404 };
     }
     return { url: longUrl };
   }
